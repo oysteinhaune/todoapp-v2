@@ -71,6 +71,13 @@ app.get("/", function(req, res) {
   })
 });
 
+app.get("/:customListname", function(req, res) {
+  const customListname = req.params.customListname
+  console.log(customListname)
+});
+
+const listSchema = new Schema
+
 app.post("/", function(req, res) {
   const itemName = req.body.newItem;
 
@@ -95,12 +102,7 @@ app.post("/delete", function(req, res) {
   })
 });
 
-app.get("/work", function(req, res) {
-  res.render("list", {
-    listTitle: "Work List",
-    newListItems: workItems
-  });
-});
+
 
 app.get("/about", function(req, res) {
   res.render("about");
