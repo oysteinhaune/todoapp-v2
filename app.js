@@ -4,6 +4,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const date = require(__dirname + "/date.js");
 const mongoose = require('mongoose')
+const _ = require('lodash');
 
 var Schema = mongoose.Schema
 
@@ -87,7 +88,7 @@ const List = mongoose.model('List', listSchema)
 app.get("/:customListname", function(req, res) {
   const items = getDefaultItems()
   const day = date.getDate()
-  const customListname = req.params.customListname
+  const customListname = _.capitalize(req.params.customListname)
 
   List.findOne({name: customListname}, (err, foundList) => {
     if (!foundList) {
@@ -143,18 +144,30 @@ app.post("/", function(req, res) {
 });
 
 app.post("/delete", function(req, res) {
-  const itemId = req.body.checkbox;
-  console.log(itemId)
-  Item.deleteOne({_id: itemId}, (err) => {
-    if (err) {
-      console.log(err)
-    } else {
-      console.log("Item deleted.");
-      res.redirect("/")
-    }
-  })
-});
+  const itemId = req.body.checkbox
+  const listName = req.body.listName
 
+  const item = new Item({
+    name: listName
+  })
+
+  if(listName === "Personal") {
+    Item.deleteOne({_id: itemId}, (err) => {
+      if (err) {
+        console.log(err)
+      } else {
+        console.log("Item deleted.");
+        res.redirect("/")
+      }
+    })
+  } else {
+    List.findOneAndUpdate({name: listName}, {$pull: {items: {_id: itemId}}}, (err, foundList) => {
+      if(!err) {
+        res.redirect(`/${listName}`)
+      }
+    })
+  }
+});
 
 
 app.get("/about", function(req, res) {
