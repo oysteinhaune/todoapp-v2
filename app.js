@@ -19,7 +19,7 @@ const itemSchema = new Schema({
 
 const Item = mongoose.model('Item', itemSchema)
 
-const insertDefaultObjects = (res) => {
+const getDefaultItems = () => {
   const macbookPro = new Item({
     name: "Make food"
   })
@@ -31,6 +31,11 @@ const insertDefaultObjects = (res) => {
   })
 
   const items = [macbookPro, boseHeadset, smartphone]
+  return items
+}
+
+const insertDefaultObjects = (res) => {
+  const items = getDefaultItems()
 
   // if empty insert default objects
   Item.insertMany(items, (err) => {
@@ -64,29 +69,77 @@ app.get("/", function(req, res) {
       insertDefaultObjects(res)
     } else {
       res.render("list", {
-        listTitle: day,
-        newListItems: items
+        listTitle: "Personal",
+        newListItems: items,
+        date: day
       });
     }
   })
 });
 
+const listSchema = new Schema({
+  name: String,
+  items: [itemSchema]
+})
+
+const List = mongoose.model('List', listSchema)
+
 app.get("/:customListname", function(req, res) {
+  const items = getDefaultItems()
+  const day = date.getDate()
   const customListname = req.params.customListname
-  console.log(customListname)
+
+  List.findOne({name: customListname}, (err, foundList) => {
+    if (!foundList) {
+      const list = new List({
+        name: customListname,
+        items: items
+      })
+
+      list.save()
+      res.redirect(`/${customListname}`)
+    } else {
+      console.log(foundList)
+      res.render(`list`, {
+        listTitle: foundList.name,
+        newListItems: foundList.items,
+        date: day
+      })
+    }
+    /*
+    list.forEach((list) => {
+      if (err) {
+        console.log(err);
+      } else if(customListname === list.name) {
+        console.log("The list exist")
+    }) */
+  })
+
+  /*list.save() */
 });
 
-const listSchema = new Schema
+
 
 app.post("/", function(req, res) {
   const itemName = req.body.newItem;
+  const listName = req.body.list
 
   const item = new Item({
     name: itemName
   })
 
-  item.save()
-  res.redirect("/")
+  if(listName === "Personal") {
+    item.save()
+    res.redirect("/")
+  } else {
+
+    List.findOne({name: listName}, (err, foundItem) => {
+      foundItem.items.push(item)
+      foundItem.save()
+      res.redirect(`/${listName}`)
+    })
+  }
+
 });
 
 app.post("/delete", function(req, res) {
