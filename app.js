@@ -8,7 +8,7 @@ const _ = require('lodash');
 
 var Schema = mongoose.Schema
 
-const url = "mongodb://localhost:27017/todolistDB"
+const url = "mongodb+srv://admin-oystein:cG5*$h5VVMm*4W*8Eh2@cluster0-r9osh.mongodb.net/todolistDB"
 mongoose.connect(url, {
   useUnifiedTopology: true,
   useNewUrlParser: true
