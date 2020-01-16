@@ -23,17 +23,17 @@ const itemSchema = new Schema({
 const Item = mongoose.model('Item', itemSchema)
 
 const getDefaultItems = () => {
-  const macbookPro = new Item({
+  const food = new Item({
     name: "Make food"
   })
-  const boseHeadset = new Item({
+  const eatFood = new Item({
     name: "Eat food"
   })
-  const smartphone = new Item({
+  const dishes = new Item({
     name: "Do dishes"
   })
 
-  const items = [macbookPro, boseHeadset, smartphone]
+  const items = [food, eatFood, dishes]
   return items
 }
 
