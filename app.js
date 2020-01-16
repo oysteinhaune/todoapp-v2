@@ -1,5 +1,5 @@
 //jshint esversion:6
-
+require('dotenv').config()
 const express = require("express");
 const bodyParser = require("body-parser");
 const date = require(__dirname + "/date.js");
@@ -8,11 +8,13 @@ const _ = require('lodash');
 
 var Schema = mongoose.Schema
 
-const url = "mongodb+srv://admin-oystein:cG5*$h5VVMm*4W*8Eh2@cluster0-r9osh.mongodb.net/todolistDB"
+const url = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@${process.env.DB_HOST}`
 mongoose.connect(url, {
   useUnifiedTopology: true,
-  useNewUrlParser: true
+  useNewUrlParser: true,
+  useFindAndModify: false
 })
+
 
 const itemSchema = new Schema({
   name: String
@@ -43,7 +45,6 @@ const insertDefaultObjects = (res) => {
     if (err) {
       console.log(err)
     } else {
-      console.log("Default items added to the database")
       res.redirect("/")
     }
   })
@@ -100,26 +101,14 @@ app.get("/:customListname", function(req, res) {
       list.save()
       res.redirect(`/${customListname}`)
     } else {
-      console.log(foundList)
       res.render(`list`, {
         listTitle: foundList.name,
         newListItems: foundList.items,
         date: day
       })
     }
-    /*
-    list.forEach((list) => {
-      if (err) {
-        console.log(err);
-      } else if(customListname === list.name) {
-        console.log("The list exist")
-    }) */
   })
-
-  /*list.save() */
 });
-
-
 
 app.post("/", function(req, res) {
   const itemName = req.body.newItem;
@@ -156,7 +145,6 @@ app.post("/delete", function(req, res) {
       if (err) {
         console.log(err)
       } else {
-        console.log("Item deleted.");
         res.redirect("/")
       }
     })
